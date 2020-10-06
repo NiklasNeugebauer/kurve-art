@@ -1,7 +1,7 @@
 import pygame as pg
 from pygame.locals import *
 import numpy as np
-import numpy.random as rdn
+import numpy.random
 
 from visualization import KurvenPlotter
 
@@ -10,14 +10,17 @@ window = (1000, 1000)
 pg.display.set_mode(window, OPENGL)
 
 plotter = KurvenPlotter(1000, 1000)
-
+positions = np.array([[-1, -.75], [-1., 0], [-1, .75]], dtype=np.float32)
 
 while True:
     for event in pg.event.get():
             if event.type == pg.QUIT:
                 pg.quit()
                 quit()
-    positions = np.array(.2*rdn.randn(100000,2),dtype=np.float32)
+
+    positions[0,0] += .001
+    positions[1,0] += .003
+    positions[2,0] += .008
     plotter.load_positions(positions)
     plotter.paintCurrent(False)
     pg.display.flip()
