@@ -7,7 +7,7 @@ from visualization import KurvenPlotter
 
 pg.init()
 window = (1000, 1000)
-pg.display.set_mode(window, OPENGL)
+pg.display.set_mode(window, pg.locals.OPENGL)
 
 plotter = KurvenPlotter(1000, 1000)
 positions = np.array([[-1, -.75], [-1., 0], [-1, .75]], dtype=np.float32)
