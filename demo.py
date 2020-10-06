@@ -21,8 +21,8 @@ while True:
     positions[0,0] += .001
     positions[1,0] += .003
     positions[2,0] += .008
-    plotter.load_positions(positions)
-    plotter.paintCurrent(False)
+    plotter.update_positions(positions)
+    plotter.paint(False)
     pg.display.flip()
     pg.time.wait(10)
     
