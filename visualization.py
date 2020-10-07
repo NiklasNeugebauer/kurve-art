@@ -4,6 +4,11 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 import OpenGL.arrays.vbo as glvbo
 
+import ctypes
+
+buffer_offset = ctypes.c_void_p
+float_size = ctypes.sizeof(ctypes.c_float)
+
 
 
 def square(position, color):
@@ -24,12 +29,15 @@ class KurvenPlotter:
         self.width, self.height = width, height
         self.count = count
         self.positions = np.array(list(zip(np.zeros(count), np.zeros(count))))
+        self.update_positions(self.positions, [])
+        self.colors = np.array(list(zip(np.ones(count), np.ones(count), np.ones(count), np.ones(count))))
+        self.update_colors(self.colors)
         glViewport(0, 0, width, height)
         glClearColor(0,0,0,0)
         # setup OpenGL to work with arrays instead of individual primitive commands
         glEnableClientState(GL_VERTEX_ARRAY)
         # setup OpenGL to work with arrays instead of individual color commands
-        #glEnableClientState(GL_COLOR_ARRAY)
+        glEnableClientState(GL_COLOR_ARRAY)
 
     def update_positions(self, data, reset):
         """ Load new curve positions as a numpy array of format [x, y]
@@ -45,21 +53,37 @@ class KurvenPlotter:
         
         # interlace positions with last_positions (format used by opengl is [start1, end1, start2, end2, ...])
         lines = np.array([val for pair in zip(last_positions, self.positions) for val in pair], dtype=np.float32)
-        print(lines)
         self.pos_buf = glvbo.VBO(lines)
 
+    def update_colors(self, data):
+        """ load new colors as a full numpy array of format [[r, g, b, a]]
+        """
+        self.colors = data
+
+        # interlace colors with their old counterparts as there will be 2 vertices per line
+        pairs = np.array([val for pair in zip(self.colors, self.colors) for val in pair], dtype=np.float32)
+        self.col_buf = glvbo.VBO(pairs)
+
     def paint(self, clear):
-        """ Paint a dot for all data points
+        """ Paint a line for all data points
         """
         if clear :
             glClear(GL_COLOR_BUFFER_BIT)
 
-        self.pos_buf.bind()
 
+        self.col_buf.bind()
+        # mark col_buf as specifying vertex_colors
+        glColorPointer(4, GL_FLOAT, 0, self.col_buf)
+        # unbind the buffer to make room for positions
+        self.col_buf.unbind()
+
+        self.pos_buf.bind()
         # mark pos_buf as a specifying vertices
         glVertexPointer(2, GL_FLOAT, 0, self.pos_buf)
+        # unbin the buffer just in case
+        self.pos_buf.unbind()
+        
         glDrawArrays(GL_LINES, 0, 2 * self.count)
-        # TODO use a GL_COLOR_ARRAY for colors
 
     def getCurrentImage(self):
         # TODO can we use pixel buffer objects for this?

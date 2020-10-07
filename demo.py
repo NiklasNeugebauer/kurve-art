@@ -12,6 +12,7 @@ pg.display.set_mode(window, pg.locals.OPENGL)
 plotter = KurvenPlotter(1000, 1000, 3)
 positions = np.array([[-1, -.75], [-1., 0], [-1, .75]], dtype=np.float32)
 plotter.update_positions(positions, np.arange(3))
+plotter.update_colors([[1., 0., 0., 1.], [0., 1., 0., 1.], [0., 0., 1., 1.]])
 count = 0
 reset = np.array([])
 
