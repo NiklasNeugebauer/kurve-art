@@ -11,7 +11,7 @@ pg.display.set_mode(window, pg.locals.OPENGL)
 
 plotter = KurvenPlotter(1000, 1000, 3)
 positions = np.array([[-1, -.75], [-1., 0], [-1, .75]], dtype=np.float32)
-plotter.update_positions(positions, np.ones(3))
+plotter.update_positions(positions, np.arange(3))
 
 while True:
     for event in pg.event.get():
@@ -22,7 +22,7 @@ while True:
     positions[0,0] += .001
     positions[1,0] += .003
     positions[2,0] += .008
-    plotter.update_positions(positions, np.zeros(3))
+    plotter.update_positions(positions, np.array([]))
     plotter.paint(False)
     pg.display.flip()
     pg.time.wait(10)
