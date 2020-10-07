@@ -34,13 +34,12 @@ class KurvenPlotter:
             A the new position will be draw disconnected setting its reset value to 1
             ex. update_positions(np.array([1,1],[0,0]), [0,1]) will connect the first line to (1,1), but start a new at (0,0)
         """
-        last_positions = np.array(list(zip(np.zeros(self.count), np.zeros(self.count))))
+        last_positions = self.positions.copy()
         for i in range(self.count):
             if reset[i] == 1:
                 print("a")
                 last_positions[i] = data[i] + np.array([1e-5, 1e-5])
-            else:
-                last_positions[i] = self.positions[i]
+
             self.positions[i] = data[i]
         
         lines = np.array([val for pair in zip(last_positions, self.positions) for val in pair], dtype=np.float32)
