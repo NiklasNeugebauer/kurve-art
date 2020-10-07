@@ -33,6 +33,9 @@ class KurvenPlotter:
         self.colors = np.array(list(zip(np.ones(count), np.ones(count), np.ones(count), np.ones(count))))
         self.update_colors(self.colors)
         glViewport(0, 0, width, height)
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+        glOrtho(-1, 1, 1, -1, -1, 1)
         glClearColor(0,0,0,0)
         # setup OpenGL to work with arrays instead of individual primitive commands
         glEnableClientState(GL_VERTEX_ARRAY)
@@ -53,7 +56,7 @@ class KurvenPlotter:
         
         # interlace positions with last_positions (format used by opengl is [start1, end1, start2, end2, ...])
         lines = np.array([val for pair in zip(last_positions, self.positions) for val in pair], dtype=np.float32)
-        self.pos_buf = glvbo.VBO(lines)
+        self.pos_buf = lines
 
     def update_colors(self, data):
         """ load new colors as a full numpy array of format [[r, g, b, a]]
@@ -62,7 +65,7 @@ class KurvenPlotter:
 
         # interlace colors with their old counterparts as there will be 2 vertices per line
         pairs = np.array([val for pair in zip(self.colors, self.colors) for val in pair], dtype=np.float32)
-        self.col_buf = glvbo.VBO(pairs)
+        self.col_buf = pairs
 
     def paint(self, clear):
         """ Paint a line for all data points
@@ -70,18 +73,24 @@ class KurvenPlotter:
         if clear :
             glClear(GL_COLOR_BUFFER_BIT)
 
+        pos = glvbo.VBO(self.pos_buf)
+        col = glvbo.VBO(self.col_buf)
 
-        self.col_buf.bind()
-        # mark col_buf as specifying vertex_colors
-        glColorPointer(4, GL_FLOAT, 0, self.col_buf)
-        # unbind the buffer to make room for positions
-        self.col_buf.unbind()
+        col.bind()
+        try:
+            # mark col_buf as specifying vertex_colors
+            glColorPointer(4, GL_FLOAT, 0, col)
+        finally:
+            # unbind the buffer to make room for positions
+            col.unbind()
 
-        self.pos_buf.bind()
-        # mark pos_buf as a specifying vertices
-        glVertexPointer(2, GL_FLOAT, 0, self.pos_buf)
-        # unbin the buffer just in case
-        self.pos_buf.unbind()
+        pos.bind()
+        try:
+            # mark pos_buf as a specifying vertices
+            glVertexPointer(2, GL_FLOAT, 0, pos)
+        finally:
+            # unbin the buffer just in case
+            pos.unbind()
         
         glDrawArrays(GL_LINES, 0, 2 * self.count)
 
