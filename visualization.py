@@ -26,7 +26,9 @@ class KurvenPlotter:
         self.positions = np.array(list(zip(np.zeros(count), np.zeros(count))))
         glViewport(0, 0, width, height)
         glClearColor(0,0,0,0)
+        # setup OpenGL to work with arrays instead of individual primitive commands
         glEnableClientState(GL_VERTEX_ARRAY)
+        # setup OpenGL to work with arrays instead of individual color commands
         #glEnableClientState(GL_COLOR_ARRAY)
 
     def update_positions(self, data, reset):
@@ -34,16 +36,18 @@ class KurvenPlotter:
             A the new position will be draw disconnected setting its reset value to 1
             ex. update_positions(np.array([1,1],[0,0]), [0,1]) will connect the first line to (1,1), but start a new at (0,0)
         """
+        # copy last positions
         last_positions = self.positions.copy()
+
+        # reset lines where requested by placing its start at the new position, too
         for i in range(self.count):
             if reset[i] == 1:
-                print("a")
                 last_positions[i] = data[i] + np.array([1e-5, 1e-5])
 
             self.positions[i] = data[i]
         
+        # interlace positions with last_positions (format used by opengl is [start1, end1, start2, end2, ...])
         lines = np.array([val for pair in zip(last_positions, self.positions) for val in pair], dtype=np.float32)
-        print(lines)
         self.pos_buf = glvbo.VBO(lines)
 
     def paint(self, clear):
@@ -54,6 +58,7 @@ class KurvenPlotter:
 
         self.pos_buf.bind()
 
+        # mark pos_buf as a specifying vertices
         glVertexPointer(2, GL_FLOAT, 0, self.pos_buf)
         glDrawArrays(GL_LINES, 0, 2 * self.count)
         glBindVertexArray(0)
