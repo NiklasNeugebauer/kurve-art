@@ -25,3 +25,9 @@ class Kurve:
 
     def get_pos(self):
         return self.pos
+
+    def get_vel(self):
+        return self.vel
+
+    def get_rot(self):
+        return self.rot
