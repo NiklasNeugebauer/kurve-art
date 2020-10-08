@@ -3,16 +3,16 @@ from pygame.locals import *
 import numpy as np
 import numpy.random
 
-from visualization import KurvenPlotter
+from visualization import KurvenPlotter, PygamePlotter
 
 pg.init()
 window = (1000, 1000)
-pg.display.set_mode(window, pg.locals.OPENGL)
+display = pg.display.set_mode(window)
 
-plotter = KurvenPlotter(1000, 1000, 3)
-positions = np.array([[-1, -.75], [-1., 0], [-1, .75]], dtype=np.float32)
+plotter = PygamePlotter(display, 3)
+positions = np.array([[0, 250], [0, 500], [0, 750]], dtype=np.float32)
 plotter.update_positions(positions, np.arange(3))
-plotter.update_colors([[1., 0., 0., 1.], [0., 1., 0., 1.], [0., 0., 1., 1.]])
+plotter.update_colors([[255., 0., 0., 255.], [0., 255., 0., 255.], [0., 0., 255., 255.]])
 count = 0
 reset = np.array([])
 
@@ -22,9 +22,9 @@ while True:
                 pg.quit()
                 quit()
 
-    positions[0,0] += .001
-    positions[1,0] += .003
-    positions[2,0] += .008
+    positions[0,0] += 1.
+    positions[1,0] += 2.
+    positions[2,0] += 5.
     if count % 20 < 5:
         reset = np.arange(3)
 
